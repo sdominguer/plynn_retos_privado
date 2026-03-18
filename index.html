@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PLYNN · Panel de Empresa</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --azul:#1A3365;--cyan:#0FBAE3;--rojo:#FF4343;--amarillo:#FFBB00;
+  --verde:#16a34a;--azul-m:#61809F;--blanco:#FFFFFF;
+  --gris-f:#F4F7FB;--gris-b:#E2E9F2;--gris-t:#6B7F96;--negro:#0D1B2E;
+  --r:14px;--shadow:0 2px 20px rgba(26,51,101,0.08);--shadow-h:0 8px 40px rgba(26,51,101,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--gris-f);color:var(--negro);min-height:100vh;font-size:15px;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--gris-b);}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;}
+
+/* ── HEADER ── */
+.header{background:var(--azul);padding:0 40px;height:66px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.18);}
+.logo{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.logo-mark{width:34px;height:34px;}
+.logo-name{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.logo-name span{color:var(--amarillo);}
+.logo-sub{font-size:10px;font-weight:500;color:var(--cyan);letter-spacing:2.5px;text-transform:uppercase;margin-top:1px;}
+.header-nav{display:flex;gap:8px;align-items:center;}
+.btn-nav{background:transparent;border:1.5px solid rgba(255,255,255,0.22);color:#fff;padding:8px 18px;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
+.btn-nav:hover{background:rgba(255,255,255,0.1);border-color:var(--cyan);}
+.btn-nav.cta{background:var(--amarillo);border-color:var(--amarillo);color:var(--azul);}
+.btn-nav.cta:hover{background:#ffd000;}
+
+/* ── VIEWS ── */
+.view{display:none;}.view.active{display:block;}
+
+/* ── DASHBOARD HERO ── */
+.dash-hero{background:linear-gradient(135deg,#0d2247,#1A3365);padding:48px 40px 40px;position:relative;overflow:hidden;}
+.dash-hero::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(15,186,227,0.14) 0%,transparent 70%);pointer-events:none;}
+.dash-hero-inner{max-width:1160px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.dash-eyebrow{font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.dash-title{font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,32px);font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.2;}
+.dash-subtitle{font-size:14px;color:rgba(255,255,255,0.55);margin-top:6px;}
+.kpi-row{display:flex;gap:16px;flex-wrap:wrap;}
+.kpi{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px 22px;min-width:130px;text-align:center;}
+.kpi-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff;line-height:1;display:block;}
+.kpi-num.c{color:var(--cyan);}
+.kpi-num.y{color:var(--amarillo);}
+.kpi-label{font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-top:5px;display:block;}
+
+/* ── TABS ── */
+.tabs-bar{background:#fff;border-bottom:1px solid var(--gris-b);box-shadow:0 1px 0 var(--gris-b);position:sticky;top:66px;z-index:90;}
+.tabs-inner{max-width:1160px;margin:0 auto;padding:0 24px;display:flex;gap:4px;}
+.tab{padding:16px 22px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gris-t);border:none;background:transparent;cursor:pointer;border-bottom:2.5px solid transparent;transition:all 0.2s;letter-spacing:0.3px;}
+.tab:hover{color:var(--azul);}
+.tab.active{color:var(--azul);border-bottom-color:var(--cyan);}
+
+/* ── SECTION WRAPPER ── */
+.content{max-width:1160px;margin:0 auto;padding:36px 24px 64px;}
+
+/* ── MIS RETOS ── */
+.reto-row{
+  background:#fff;border-radius:var(--r);border:1.5px solid var(--gris-b);
+  box-shadow:var(--shadow);margin-bottom:16px;
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:22px 24px;
+  transition:all 0.2s;cursor:pointer;
+}
+.reto-row:hover{border-color:var(--cyan);box-shadow:var(--shadow-h);}
+.reto-row-sector{font-size:10px;font-weight:700;color:var(--azul-m);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;}
+.reto-row-nombre{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--azul);margin-bottom:6px;line-height:1.3;}
+.reto-row-empresa{font-size:13px;color:var(--gris-t);}
+.reto-row-meta{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.meta-pill{font-size:11px;font-weight:600;padding:4px 12px;border-radius:50px;border:1.5px solid var(--gris-b);color:var(--azul-m);}
+.meta-pill.sol{background:rgba(15,186,227,0.08);border-color:rgba(15,186,227,0.3);color:var(--cyan);}
+.meta-pill.dias-ok{background:rgba(22,163,74,0.07);border-color:rgba(22,163,74,0.25);color:var(--verde);}
+.meta-pill.dias-no{background:rgba(255,67,67,0.07);border-color:rgba(255,67,67,0.25);color:var(--rojo);}
+.reto-row-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+.btn-sm{padding:8px 18px;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;border:1.5px solid transparent;white-space:nowrap;}
+.btn-sm.primary{background:var(--azul);color:#fff;border-color:var(--azul);}
+.btn-sm.primary:hover{background:var(--cyan);border-color:var(--cyan);}
+.btn-sm.danger{background:transparent;color:var(--rojo);border-color:rgba(255,67,67,0.3);}
+.btn-sm.danger:hover{background:rgba(255,67,67,0.06);border-color:var(--rojo);}
+
+/* ── POSTULACIONES ── */
+.sol-card{background:#fff;border-radius:var(--r);border:1.5px solid var(--gris-b);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;transition:all 0.2s;}
+.sol-card:hover{border-color:var(--cyan);}
+.sol-card-head{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;background:var(--gris-f);border-bottom:1px solid var(--gris-b);}
+.sol-solver{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--azul);}
+.sol-reto-ref{font-size:12px;color:var(--gris-t);margin-top:3px;font-weight:400;}
+.sol-tipo{font-size:11px;font-weight:700;background:rgba(26,51,101,0.07);color:var(--azul);padding:4px 12px;border-radius:50px;}
+.sol-card-body{padding:22px 24px;display:none;}
+.sol-card-body.open{display:block;}
+.sol-field{margin-bottom:18px;}
+.sol-label{font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.sol-val{font-size:14px;color:var(--negro);line-height:1.65;font-weight:400;}
+.sol-val.big{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--azul);}
+.sol-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.sol-grid{grid-template-columns:1fr;}}
+.nivel-badge{display:inline-block;background:rgba(15,186,227,0.08);border:1.5px solid rgba(15,186,227,0.25);color:var(--cyan);font-size:12px;font-weight:700;padding:5px 14px;border-radius:8px;}
+.contact-box{background:var(--gris-f);border-radius:10px;padding:16px 20px;border:1px solid var(--gris-b);}
+.contact-row{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--negro);margin-bottom:6px;}
+.contact-row:last-child{margin-bottom:0;}
+.contact-row a{color:var(--cyan);text-decoration:none;font-weight:600;}
+.contact-row a:hover{text-decoration:underline;}
+
+/* ── FILTRO EMPRESA ── */
+.empresa-filter{
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.empresa-filter label{font-size:13px;font-weight:600;color:var(--azul);white-space:nowrap;}
+.empresa-filter select{
+  padding:9px 36px 9px 14px;border:1.5px solid var(--gris-b);border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:var(--negro);background:#fff;
+  outline:none;appearance:none;cursor:pointer;transition:all 0.2s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2361809F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.empresa-filter select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(15,186,227,0.1);}
+
+/* ── FORM PUBLICAR ── */
+.form-wrap{max-width:780px;margin:0 auto;}
+.form-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+.form-head{background:linear-gradient(135deg,#0d2247,#1A3365);padding:36px 40px;color:#fff;}
+.form-head .eyebrow{font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.form-head h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
+.form-head p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6;}
+.form-body{padding:36px 40px;}
+.f-section{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--azul);letter-spacing:2px;text-transform:uppercase;padding-bottom:12px;border-bottom:2px solid var(--gris-b);margin-bottom:22px;margin-top:30px;}
+.f-section:first-of-type{margin-top:0;}
+.field{margin-bottom:20px;}
+label{display:block;font-size:13px;font-weight:600;color:var(--azul);margin-bottom:7px;}
+label .req{color:var(--rojo);}
+label .hint{display:block;font-size:12px;font-weight:400;color:var(--gris-t);margin-top:2px;line-height:1.5;}
+input[type="text"],input[type="email"],input[type="date"],input[type="url"],input[type="tel"],input[type="number"],select,textarea{
+  width:100%;padding:11px 15px;border:1.5px solid var(--gris-b);border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--negro);background:var(--gris-f);
+  transition:all 0.2s;outline:none;appearance:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);background:#fff;box-shadow:0 0 0 3px rgba(15,186,227,0.1);}
+textarea{resize:vertical;min-height:110px;line-height:1.65;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2361809F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px;}
+.pill{position:relative;}
+.pill input{display:none;}
+.pill span{display:inline-block;padding:7px 16px;border:1.5px solid var(--gris-b);border-radius:50px;font-size:13px;font-weight:500;color:var(--azul-m);cursor:pointer;transition:all 0.2s;background:#fff;user-select:none;}
+.pill input:checked~span{background:var(--azul);border-color:var(--azul);color:#fff;}
+.pill span:hover{border-color:var(--cyan);}
+.btn-submit{width:100%;padding:16px;background:var(--amarillo);color:var(--azul);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s;letter-spacing:0.5px;margin-top:6px;}
+.btn-submit:hover{background:#ffd000;transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,187,0,0.4);}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,28,58,0.72);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{background:#fff;border-radius:16px;padding:40px;max-width:460px;width:100%;box-shadow:0 24px 64px rgba(10,28,58,0.3);animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-box h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--azul);margin-bottom:8px;text-align:center;}
+.modal-box p{font-size:14px;color:var(--gris-t);line-height:1.6;margin-bottom:20px;text-align:center;}
+.modal-actions{display:flex;gap:12px;margin-top:8px;}
+.btn-cancel{flex:1;padding:12px;border-radius:8px;border:1.5px solid var(--gris-b);background:transparent;color:var(--azul-m);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-cancel:hover{border-color:var(--azul);color:var(--azul);}
+.btn-confirm{flex:1;padding:12px;border-radius:8px;border:none;background:var(--rojo);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-confirm:hover{background:#cc2f2f;}
+.btn-confirm:disabled{opacity:0.6;cursor:not-allowed;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:70px 24px;}
+.empty-icon{font-size:52px;margin-bottom:16px;display:block;}
+.empty h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--azul);margin-bottom:8px;}
+.empty p{font-size:14px;color:var(--gris-t);max-width:380px;margin:0 auto 20px;}
+
+/* ── SUCCESS ── */
+.success-wrap{text-align:center;padding:60px 32px;max-width:480px;margin:0 auto;}
+.success-icon{width:80px;height:80px;background:linear-gradient(135deg,var(--cyan),var(--azul));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:34px;}
+.success-wrap h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--azul);margin-bottom:12px;}
+.success-wrap p{font-size:15px;color:var(--gris-t);line-height:1.7;margin-bottom:28px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--azul);color:#fff;padding:14px 26px;border-radius:50px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(26,51,101,0.3);z-index:999;transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:9px;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── FOOTER ── */
+footer{background:var(--azul);color:rgba(255,255,255,0.5);text-align:center;padding:26px 24px;font-size:12px;margin-top:40px;}
+footer strong{color:var(--cyan);}
+
+@media(max-width:768px){
+  .header{padding:0 16px;}
+  .dash-hero{padding:36px 20px 28px;}
+  .kpi-row{gap:10px;}
+  .kpi{padding:12px 16px;min-width:100px;}
+  .tabs-inner{overflow-x:auto;gap:0;}
+  .tab{padding:14px 16px;font-size:12px;white-space:nowrap;}
+  .content{padding:24px 16px 48px;}
+  .form-body,.form-head{padding:24px 20px;}
+  .reto-row{grid-template-columns:1fr;gap:12px;}
+  .reto-row-actions{flex-direction:row;align-items:center;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.anim{animation:fadeUp 0.45s ease both;}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo" onclick="setTab('mis-retos')">
+    <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
+      <rect x="4" y="10" width="9" height="20" rx="4.5" fill="#0FBAE3"/>
+      <rect x="15" y="4" width="9" height="26" rx="4.5" fill="#FFBB00"/>
+      <circle cx="19.5" cy="3.5" r="3.5" fill="#FFBB00"/>
+    </svg>
+    <div>
+      <div class="logo-name">pl<span>y</span>nn</div>
+      <div class="logo-sub">Panel de Empresa</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <button class="btn-nav cta" onclick="setTab('publicar')">+ Publicar reto</button>
+  </nav>
+</header>
+
+<!-- ── DASHBOARD HERO ── -->
+<section class="dash-hero">
+  <div class="dash-hero-inner">
+    <div>
+      <div class="dash-eyebrow">Panel de empresa</div>
+      <div class="dash-title">Gestión de Retos de<br/>Innovación Abierta</div>
+      <div class="dash-subtitle">Publica, gestiona y responde a las soluciones recibidas.</div>
+    </div>
+    <div class="kpi-row" id="kpi-row"></div>
+  </div>
+</section>
+
+<!-- ── TABS ── -->
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab active" id="tab-mis-retos" onclick="setTab('mis-retos')">📋 Mis retos</button>
+    <button class="tab" id="tab-postulaciones" onclick="setTab('postulaciones')">💡 Postulaciones recibidas</button>
+    <button class="tab" id="tab-publicar" onclick="setTab('publicar')">➕ Publicar nuevo reto</button>
+  </div>
+</div>
+
+<!-- ══ MIS RETOS ══ -->
+<div id="view-mis-retos" class="view active">
+  <div class="content">
+    <div id="lista-retos"></div>
+  </div>
+</div>
+
+<!-- ══ POSTULACIONES ══ -->
+<div id="view-postulaciones" class="view">
+  <div class="content">
+    <div class="empresa-filter">
+      <label>Filtrar por reto:</label>
+      <select id="filtro-reto-sol" onchange="renderPostulaciones()">
+        <option value="todos">Todos los retos</option>
+      </select>
+    </div>
+    <div id="lista-postulaciones"></div>
+  </div>
+</div>
+
+<!-- ══ PUBLICAR ══ -->
+<div id="view-publicar" class="view">
+  <div class="content">
+    <div class="form-wrap" id="form-publicar-wrap">
+      <div class="form-card">
+        <div class="form-head">
+          <div class="eyebrow">Comunidad PLYNN</div>
+          <h2>Publicar Reto de Innovación Abierta</h2>
+          <p>Entre más detallado sea tu reto, mejores soluciones recibirás. Una notificación automática llegará a los solvers.</p>
+        </div>
+        <div class="form-body">
+          <form id="form-reto" onsubmit="submitReto(event)" novalidate>
+
+            <div class="f-section">Información de la empresa</div>
+            <div class="field"><label>Nombre de la empresa <span class="req">*</span></label><input type="text" name="empresa" required placeholder="Ej. Soluciones Tech S.A.S."/></div>
+            <div class="field">
+              <label>Sector económico <span class="req">*</span></label>
+              <select name="sector" required>
+                <option value="">Seleccione un sector...</option>
+                <option>Sector Financiero</option><option>Sector de Servicios</option><option>Sector Industrial</option><option>Sector de Comercio</option><option>Sector de Salud</option><option>Sector Agropecuario</option><option>Sector de Transporte</option><option>Sector TIC</option><option>Sector Minero y Energético</option><option>Sector de las Comunicaciones</option><option>Otro</option>
+              </select>
+            </div>
+            <div class="field"><label>Correo electrónico de contacto <span class="req">*</span><span class="hint">A este correo llegarán las notificaciones de nuevas postulaciones.</span></label><input type="email" name="correo" required placeholder="contacto@empresa.com"/></div>
+
+            <div class="f-section">El reto</div>
+            <div class="field"><label>Reto de innovación abierta <span class="req">*</span><span class="hint">Formúlalo como pregunta. Ej: ¿Cómo podemos reducir el desperdicio en nuestra línea de producción?</span></label><textarea name="reto" required placeholder="¿Cómo podemos...?"></textarea></div>
+            <div class="field"><label>Descripción del reto <span class="req">*</span><span class="hint">Origen del reto, problema u oportunidad e impactos generados.</span></label><textarea name="descripcion" required rows="5" placeholder="Describe la situación actual, el problema, actores impactados y cifras relevantes..."></textarea></div>
+            <div class="field"><label>Áreas de la empresa que impacta este reto</label><input type="text" name="areas" placeholder="Ej: Producción, Logística, Servicio al cliente..."/></div>
+            <div class="field"><label>Requisitos mínimos de la solución</label><textarea name="requisitos" rows="3" placeholder="Características mínimas: técnicas, económicas, normativas, de tiempo, etc."></textarea></div>
+            <div class="field"><label>Barreras que puede tener la solución</label><textarea name="barreras" rows="3" placeholder="Posibles barreras: legales, técnicas, de mercado, etc."></textarea></div>
+            <div class="field">
+              <label>Tipo de innovación buscada <span class="req">*</span></label>
+              <div class="pills">
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Producto"/><span>Producto</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Servicio"/><span>Servicio</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Proceso"/><span>Proceso</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Marketing / Endomarketing"/><span>Marketing / Endomarketing</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Modelo de negocio"/><span>Modelo de negocio</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_innovacion" value="Organizacional"/><span>Organizacional</span></label>
+              </div>
+            </div>
+
+            <div class="f-section">Relación con el solver</div>
+            <div class="field">
+              <label>Tipo de solver buscado</label>
+              <div class="pills">
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Universidad (estudiantes)"/><span>Universidad (estudiantes)</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Universidad (investigación)"/><span>Universidad (investigación)</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Empresa"/><span>Empresa</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Startup"/><span>Startup</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Centro tecnológico"/><span>Centro tecnológico</span></label>
+                <label class="pill"><input type="checkbox" name="tipo_solver" value="Otro"/><span>Otro</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Tipo de convenio de interés <span class="req">*</span><span class="hint">Puede seleccionar varias opciones</span></label>
+              <div class="pills">
+                <label class="pill"><input type="checkbox" name="convenio" value="Contrato de obra / asesoría técnica"/><span>Contrato de obra / asesoría técnica</span></label>
+                <label class="pill"><input type="checkbox" name="convenio" value="Coocrear y coodesarrollar con financiamiento de la empresa"/><span>Coocrear y coodesarrollar</span></label>
+                <label class="pill"><input type="checkbox" name="convenio" value="Comprar o adquirir la innovación resultante"/><span>Comprar la innovación</span></label>
+                <label class="pill"><input type="checkbox" name="convenio" value="Crear emprendimiento conjunto"/><span>Emprendimiento conjunto</span></label>
+                <label class="pill"><input type="checkbox" name="convenio" value="Convenio para explotar resultados"/><span>Explotar resultados entre ambos</span></label>
+              </div>
+            </div>
+            <div class="field"><label>Presupuesto disponible (IVA incluido)</label><input type="text" name="presupuesto" placeholder="Ej: $10.000.000 COP"/></div>
+            <div class="field"><label>Tiempo estimado de ejecución</label><input type="text" name="tiempo" placeholder="Ej: 3 meses"/></div>
+            <div class="field"><label>Fecha límite para recibir soluciones <span class="req">*</span></label><input type="date" name="fecha_limite" required/></div>
+            <div class="field"><label>Para más información contactar</label><input type="text" name="contacto_info" placeholder="Nombre, cargo, teléfono..."/></div>
+
+            <button type="submit" class="btn-submit" id="btn-publicar">PUBLICAR RETO DE INNOVACIÓN</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CERRAR RETO ── -->
+<div id="modal-cerrar" style="display:none;">
+  <div class="modal-overlay" onclick="cerrarModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <h3>Marcar reto como completado</h3>
+      <p>Para confirmar, ingresa el correo con el que publicaste este reto. El reto y todas sus postulaciones serán eliminados permanentemente.</p>
+      <div class="field" style="margin-bottom:8px;">
+        <label style="color:var(--azul);font-size:13px;font-weight:600;">Correo de verificación <span style="color:var(--rojo);">*</span></label>
+        <input type="email" id="input-correo-cierre" placeholder="correo@empresa.com" style="margin-top:7px;"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="document.getElementById('modal-cerrar').style.display='none'">Cancelar</button>
+        <button class="btn-confirm" id="btn-confirmar" onclick="confirmarCierreReto()">Eliminar reto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg">Acción completada</span></div>
+
+<footer>
+  <strong>PLYNN · Innovación Abierta</strong> — Panel privado para empresas de la comunidad
+</footer>
+
+<script>
+// ╔══════════════════════════════════════════════╗
+// ║  CONFIGURACIÓN — pega tu URL de Apps Script  ║
+// ╚══════════════════════════════════════════════╝
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9aqN8pxREnsefIhz68mCWdYr_Z41YdDLXv_cIFKEfdGGdjIFevGaeP2h-3oGlx2qBzA/exec';
+
+let retos = [];
+let soluciones = [];
+let retoParaCerrar = null;
+let tabActual = 'mis-retos';
+
+document.addEventListener('DOMContentLoaded', iniciar);
+
+async function iniciar() {
+  try {
+    const [r, s] = await Promise.all([
+      fetch(`${APPS_SCRIPT_URL}?action=getRetos`).then(x => x.json()),
+      fetch(`${APPS_SCRIPT_URL}?action=getSoluciones`).then(x => x.json())
+    ]);
+    retos     = Array.isArray(r) ? r : [];
+    soluciones = Array.isArray(s) ? s : [];
+    localStorage.setItem('plynn_retos', JSON.stringify(retos));
+    localStorage.setItem('plynn_soluciones', JSON.stringify(soluciones));
+  } catch {
+    retos      = JSON.parse(localStorage.getItem('plynn_retos') || '[]');
+    soluciones = JSON.parse(localStorage.getItem('plynn_soluciones') || '[]');
+  }
+  renderKPIs();
+  renderMisRetos();
+  poblarFiltroReto();
+  renderPostulaciones();
+}
+
+// ── TABS ──
+function setTab(tab) {
+  tabActual = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`tab-${tab}`)?.classList.add('active');
+  document.getElementById(`view-${tab}`)?.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (tab === 'mis-retos') renderMisRetos();
+  if (tab === 'postulaciones') { poblarFiltroReto(); renderPostulaciones(); }
+}
+
+// ── KPIs ──
+function renderKPIs() {
+  const totalSols = soluciones.length;
+  const retosActivos = retos.filter(r => new Date(r.fecha_limite) > new Date()).length;
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><span class="kpi-num">${retos.length}</span><span class="kpi-label">Retos publicados</span></div>
+    <div class="kpi"><span class="kpi-num c">${retosActivos}</span><span class="kpi-label">Activos</span></div>
+    <div class="kpi"><span class="kpi-num y">${totalSols}</span><span class="kpi-label">Postulaciones</span></div>
+  `;
+}
+
+// ── MIS RETOS ──
+function renderMisRetos() {
+  const el = document.getElementById('lista-retos');
+  if (retos.length === 0) {
+    el.innerHTML = `<div class="empty anim"><span class="empty-icon">🚀</span><h3>Aún no tienes retos publicados</h3><p>Crea tu primer reto y comienza a recibir soluciones innovadoras.</p><button class="btn-sm primary" onclick="setTab('publicar')">+ Publicar primer reto</button></div>`;
+    return;
+  }
+  el.innerHTML = [...retos].reverse().map(r => {
+    const dias = Math.ceil((new Date(r.fecha_limite) - new Date()) / 86400000);
+    const numSols = soluciones.filter(s => s.reto_id === r.id).length;
+    const diasClass = dias > 0 ? 'dias-ok' : 'dias-no';
+    const diasTxt = dias > 0 ? `${dias} días restantes` : 'Cerrado';
+    return `
+      <div class="reto-row anim" onclick="setTabAndFilter('postulaciones','${r.id}')">
+        <div>
+          <div class="reto-row-sector">${r.sector}</div>
+          <div class="reto-row-nombre">${r.reto}</div>
+          <div class="reto-row-empresa">${r.empresa} · <span style="color:var(--gris-t);font-size:12px;">${r.correo}</span></div>
+          <div class="reto-row-meta">
+            <span class="meta-pill sol">💡 ${numSols} postulacion${numSols !== 1 ? 'es' : ''}</span>
+            <span class="meta-pill ${diasClass}">⏱ ${diasTxt}</span>
+            ${(r.tipo_innovacion||[]).slice(0,2).map(t => `<span class="meta-pill">${t}</span>`).join('')}
+          </div>
+        </div>
+        <div class="reto-row-actions">
+          <button class="btn-sm primary" onclick="event.stopPropagation();setTabAndFilter('postulaciones','${r.id}')">Ver postulaciones</button>
+          <button class="btn-sm danger" onclick="event.stopPropagation();abrirModalCerrar('${r.id}')">Marcar completado</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function setTabAndFilter(tab, retoId) {
+  setTab(tab);
+  setTimeout(() => {
+    const sel = document.getElementById('filtro-reto-sol');
+    if (sel) { sel.value = retoId; renderPostulaciones(); }
+  }, 50);
+}
+
+// ── POSTULACIONES ──
+function poblarFiltroReto() {
+  const sel = document.getElementById('filtro-reto-sol');
+  if (!sel) return;
+  const val = sel.value;
+  sel.innerHTML = '<option value="todos">Todos los retos</option>' +
+    retos.map(r => `<option value="${r.id}">${r.empresa} · ${r.reto.substring(0,55)}...</option>`).join('');
+  if (val) sel.value = val;
+}
+
+function renderPostulaciones() {
+  const el = document.getElementById('lista-postulaciones');
+  const filtro = document.getElementById('filtro-reto-sol')?.value || 'todos';
+  let lista = [...soluciones].reverse();
+  if (filtro !== 'todos') lista = lista.filter(s => s.reto_id === filtro);
+
+  if (lista.length === 0) {
+    el.innerHTML = `<div class="empty anim"><span class="empty-icon">💡</span><h3>Sin postulaciones aún</h3><p>Cuando un solver envíe su propuesta, aparecerá aquí y recibirás un correo automático.</p></div>`;
+    return;
+  }
+  el.innerHTML = lista.map((s, i) => {
+    const reto = retos.find(r => r.id === s.reto_id);
+    const retoNombre = reto ? reto.reto.substring(0,60)+'...' : s.reto_id;
+    const fecha = s.fecha ? new Date(s.fecha).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const tipoPI = (s.tipo_pi||[]).join(', ') || '—';
+    return `
+      <div class="sol-card anim">
+        <div class="sol-card-head" onclick="toggleSol(this)">
+          <div>
+            <div class="sol-solver">${s.solver_nombre || '—'}</div>
+            <div class="sol-reto-ref">Reto: ${retoNombre} &nbsp;·&nbsp; ${fecha}</div>
+          </div>
+          <span class="sol-tipo">${s.tipo_solver || 'Solver'}</span>
+        </div>
+        <div class="sol-card-body" id="sol-body-${i}">
+          <div class="sol-grid">
+            <div class="sol-field"><div class="sol-label">Contacto</div>
+              <div class="contact-box">
+                <div class="contact-row">👤 <strong>${s.contacto_nombre || '—'}</strong> · ${s.cargo || ''}</div>
+                <div class="contact-row">📧 <a href="mailto:${s.correo}">${s.correo}</a></div>
+                <div class="contact-row">📱 ${s.celular || '—'}</div>
+                ${s.web ? `<div class="contact-row">🌐 <a href="${s.web}" target="_blank">${s.web}</a></div>` : ''}
+              </div>
+            </div>
+            <div class="sol-field"><div class="sol-label">Nivel de desarrollo</div><div class="nivel-badge">${s.nivel_desarrollo || '—'}</div></div>
+          </div>
+          <div class="sol-field"><div class="sol-label">Descripción de la solución</div><div class="sol-val">${s.descripcion || '—'}</div></div>
+          <div class="sol-field"><div class="sol-label">¿Por qué sería la mejor solución?</div><div class="sol-val">${s.mejor_solucion || '—'}</div></div>
+          <div class="sol-grid">
+            <div class="sol-field"><div class="sol-label">Propiedad intelectual</div><div class="sol-val">${s.tiene_pi === 'SI' ? `Sí — ${tipoPI}` : 'No aplica'}</div></div>
+            <div class="sol-field"><div class="sol-label">Equipo</div><div class="sol-val">${s.equipo_size || '—'}${s.perfiles ? ` · ${s.perfiles}` : ''}</div></div>
+            <div class="sol-field"><div class="sol-label">Convenio propuesto</div><div class="sol-val">${s.convenio || '—'}</div></div>
+            <div class="sol-field"><div class="sol-label">NIT</div><div class="sol-val">${s.nit || '—'}</div></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleSol(head) {
+  const body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ── PUBLICAR RETO ──
+async function submitReto(e) {
+  e.preventDefault();
+  const f = e.target;
+  const tiposInn = [...f.querySelectorAll('[name="tipo_innovacion"]:checked')].map(x => x.value);
+  const tiposSolv = [...f.querySelectorAll('[name="tipo_solver"]:checked')].map(x => x.value);
+  const convenios = [...f.querySelectorAll('[name="convenio"]:checked')].map(x => x.value);
+
+  if (!f.empresa.value || !f.sector.value || !f.correo.value || !f.reto.value || !f.descripcion.value || !f.fecha_limite.value) {
+    showToast('Completa todos los campos obligatorios', '#FF4343'); return;
+  }
+
+  const newReto = {
+    id: 'reto-' + Date.now(),
+    empresa: f.empresa.value, sector: f.sector.value, correo: f.correo.value,
+    reto: f.reto.value, descripcion: f.descripcion.value, areas: f.areas.value,
+    requisitos: f.requisitos.value, barreras: f.barreras.value,
+    tipo_innovacion: tiposInn, tipo_solver: tiposSolv, convenio: convenios,
+    presupuesto: f.presupuesto.value, tiempo: f.tiempo.value,
+    fecha_limite: f.fecha_limite.value, contacto_info: f.contacto_info.value,
+    fecha_publicacion: new Date().toISOString()
+  };
+
+  const btn = document.getElementById('btn-publicar');
+  btn.disabled = true; btn.textContent = 'Publicando...';
+  try {
+    const payload = encodeURIComponent(JSON.stringify(newReto));
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=addReto&payload=${payload}`, { redirect: 'follow' });
+    const result = await res.json();
+    if (!result.success) throw new Error(result.error || 'Error');
+    retos.push(newReto);
+    localStorage.setItem('plynn_retos', JSON.stringify(retos));
+    renderKPIs();
+
+    document.getElementById('form-publicar-wrap').innerHTML = `
+      <div class="form-card"><div class="success-wrap">
+        <div class="success-icon">✓</div>
+        <h2>¡Reto publicado!</h2>
+        <p>Tu reto ya está visible en el marketplace público. Recibirás un correo automático cada vez que un solver envíe una postulación.</p>
+        <button class="btn-submit" style="max-width:280px;margin:0 auto;" onclick="setTab('mis-retos');location.reload()">Ver mis retos</button>
+      </div></div>`;
+    showToast('✅ Reto publicado con éxito');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'PUBLICAR RETO DE INNOVACIÓN';
+    showToast('Error al publicar. Inténtalo de nuevo.', '#FF4343');
+  }
+}
+
+// ── CERRAR RETO ──
+function abrirModalCerrar(id) {
+  retoParaCerrar = id;
+  document.getElementById('input-correo-cierre').value = '';
+  document.getElementById('modal-cerrar').style.display = 'flex';
+}
+function cerrarModal(e) { document.getElementById('modal-cerrar').style.display = 'none'; }
+
+async function confirmarCierreReto() {
+  const correo = document.getElementById('input-correo-cierre').value.trim().toLowerCase();
+  if (!correo) { showToast('Ingresa el correo para confirmar', '#FF4343'); return; }
+  const reto = retos.find(r => r.id === retoParaCerrar);
+  if (!reto) { showToast('Reto no encontrado', '#FF4343'); return; }
+  if (correo !== reto.correo.toLowerCase()) { showToast('El correo no coincide con el de la publicación', '#FF4343'); return; }
+
+  const btn = document.getElementById('btn-confirmar');
+  btn.disabled = true; btn.textContent = 'Eliminando...';
+  try {
+    const payload = encodeURIComponent(JSON.stringify({ id: retoParaCerrar }));
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=deleteReto&payload=${payload}`, { redirect: 'follow' });
+    const result = await res.json();
+    if (!result.success) throw new Error(result.error || 'Error al eliminar');
+
+    retos = retos.filter(r => r.id !== retoParaCerrar);
+    soluciones = soluciones.filter(s => s.reto_id !== retoParaCerrar);
+    localStorage.setItem('plynn_retos', JSON.stringify(retos));
+    localStorage.setItem('plynn_soluciones', JSON.stringify(soluciones));
+    document.getElementById('modal-cerrar').style.display = 'none';
+    renderKPIs(); renderMisRetos(); poblarFiltroReto(); renderPostulaciones();
+    showToast('✅ Reto eliminado correctamente');
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Eliminar reto';
+    showToast('❌ Error: ' + err.message, '#FF4343');
+  }
+}
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.style.background = color || 'var(--azul)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
