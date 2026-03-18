@@ -67,9 +67,10 @@ body{font-family:'Montserrat',sans-serif;background:var(--gris-f);color:var(--ne
 .content-area{padding-top:36px;padding-bottom:60px;}
 
 /* ── RETOS ROW ── */
-.reto-row{background:#fff;border-radius:var(--radio);border:1.5px solid var(--gris-b);box-shadow:var(--sombra);margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:24px;transition:all 0.2s;cursor:pointer;}
+.reto-row{background:#fff;border-radius:var(--radio);border:1.5px solid var(--gris-b);box-shadow:var(--sombra);margin-bottom:16px;overflow:hidden;transition:all 0.2s;cursor:pointer;}
 .reto-row:hover{border-color:var(--cyan);box-shadow:var(--sombra-h);}
-.reto-row-top{height:4px;background:linear-gradient(90deg,var(--cyan),var(--azul));border-radius:var(--radio) var(--radio) 0 0;margin:-24px -24px 20px -24px;}
+.reto-row-top{height:5px;background:linear-gradient(90deg,var(--cyan),var(--azul));display:block;width:100%;}
+.reto-row-inner{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:22px 24px;}
 .reto-row-sector{font-size:11px;font-weight:700;color:var(--azul-m);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
 .reto-row-nombre{font-size:16px;font-weight:800;color:var(--azul);margin-bottom:6px;line-height:1.3;}
 .reto-row-empresa{font-size:13px;color:var(--gris-t);}
@@ -181,7 +182,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .kpi{flex:1;min-width:90px;}
   .tabs-bar .C{padding-left:8px;padding-right:8px;}
   .tab{padding:14px 16px;font-size:12px;}
-  .reto-row{grid-template-columns:1fr;}
+  .reto-row-inner{grid-template-columns:1fr;}
   .reto-row-actions{flex-direction:row;}
   .sol-grid2{grid-template-columns:1fr;}
   .form-card-header{padding:28px 20px;}
@@ -212,7 +213,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </header>
 
-<!-- ══ DASH HERO ══ -->
+<!-- ══ BANNER EMAIL (solo visible si no llega email de Wix) ══ -->
+<div id="banner-email" style="display:none;background:#FFBB00;padding:10px 28px;align-items:center;justify-content:center;gap:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#1A3365;">
+  ⚠️ Modo de prueba — en producción el email llega automáticamente desde Wix
+</div>
 <section class="dash-hero">
   <div class="C">
     <div>
@@ -349,21 +353,52 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9aqN8pxREnsefIhz68mCWdYr_Z41YdDLXv_cIFKEfdGGdjIFevGaeP2h-3oGlx2qBzA/exec';
 let retos=[], soluciones=[], retoParaCerrar=null;
 
+// ── FILTRO POR USUARIO WIX ──
+// Wix pasa el email del usuario logueado como parámetro en la URL del iframe
+// El iframe en Wix debe tener la URL así:
+//   https://tuusuario.github.io/plynn/privado.html?email={user.email}
+// Wix reemplaza {user.email} automáticamente con el email del miembro
+function getEmailUsuario() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('email') || '').toLowerCase().trim();
+}
+
+let emailUsuario = ''; // se carga al iniciar
+
 document.addEventListener('DOMContentLoaded', iniciar);
 
 async function iniciar() {
+  emailUsuario = getEmailUsuario();
+
+  // Mostrar banner si no hay email (acceso directo sin Wix)
+  if (!emailUsuario) {
+    document.getElementById('banner-email').style.display = 'flex';
+  } else {
+    document.getElementById('banner-email').style.display = 'none';
+  }
+
   try {
     const [r,s] = await Promise.all([
       fetch(`${APPS_SCRIPT_URL}?action=getRetos`,{redirect:'follow'}).then(x=>x.json()),
       fetch(`${APPS_SCRIPT_URL}?action=getSoluciones`,{redirect:'follow'}).then(x=>x.json())
     ]);
-    retos=Array.isArray(r)?r:[]; soluciones=Array.isArray(s)?s:[];
-    localStorage.setItem('plynn_retos',JSON.stringify(retos));
-    localStorage.setItem('plynn_soluciones',JSON.stringify(soluciones));
+    const todosRetos = Array.isArray(r) ? r : [];
+    soluciones = Array.isArray(s) ? s : [];
+
+    // Filtrar solo los retos del usuario actual (por correo)
+    retos = emailUsuario
+      ? todosRetos.filter(r => r.correo?.toLowerCase() === emailUsuario)
+      : todosRetos;
+
+    localStorage.setItem('plynn_retos', JSON.stringify(todosRetos)); // guardar todos en cache
+    localStorage.setItem('plynn_soluciones', JSON.stringify(soluciones));
     localStorage.setItem('plynn_sheets_ok','1');
   } catch {
-    retos=JSON.parse(localStorage.getItem('plynn_retos')||'[]');
-    soluciones=JSON.parse(localStorage.getItem('plynn_soluciones')||'[]');
+    const todosRetos = JSON.parse(localStorage.getItem('plynn_retos')||'[]');
+    soluciones = JSON.parse(localStorage.getItem('plynn_soluciones')||'[]');
+    retos = emailUsuario
+      ? todosRetos.filter(r => r.correo?.toLowerCase() === emailUsuario)
+      : todosRetos;
   }
   renderKPIs(); renderMisRetos(); poblarFiltro(); renderPostulaciones();
 }
@@ -376,6 +411,13 @@ function setTab(tab) {
   window.scrollTo({top:0,behavior:'smooth'});
   if(tab==='mis-retos') renderMisRetos();
   if(tab==='postulaciones'){poblarFiltro();renderPostulaciones();}
+  // Pre-rellenar correo con el email de Wix si está disponible
+  if(tab==='publicar' && emailUsuario) {
+    setTimeout(()=>{
+      const inp = document.querySelector('#form-reto [name="correo"]');
+      if(inp && !inp.value) { inp.value = emailUsuario; inp.readOnly = true; inp.style.background='#f0f4fa'; }
+    }, 50);
+  }
 }
 
 function renderKPIs() {
@@ -395,19 +437,21 @@ function renderMisRetos() {
     const dc=dias>0?'ok':'no', dt=dias>0?`${dias} días restantes`:'Cerrado';
     return `<div class="reto-row anim" onclick="setTabAndFilter('postulaciones','${r.id}')">
       <div class="reto-row-top"></div>
-      <div>
-        <div class="reto-row-sector">${r.sector}</div>
-        <div class="reto-row-nombre">${r.reto}</div>
-        <div class="reto-row-empresa">${r.empresa} · <span style="color:var(--gris-t);font-size:12px">${r.correo}</span></div>
-        <div class="reto-row-meta">
-          <span class="meta-pill sol">💡 ${n} postulación${n!==1?'es':''}</span>
-          <span class="meta-pill ${dc}">⏱ ${dt}</span>
-          ${(r.tipo_innovacion||[]).slice(0,2).map(t=>`<span class="meta-pill">${t}</span>`).join('')}
+      <div class="reto-row-inner">
+        <div>
+          <div class="reto-row-sector">${r.sector}</div>
+          <div class="reto-row-nombre">${r.reto}</div>
+          <div class="reto-row-empresa">${r.empresa} · <span style="color:var(--gris-t);font-size:12px">${r.correo}</span></div>
+          <div class="reto-row-meta">
+            <span class="meta-pill sol">💡 ${n} postulación${n!==1?'es':''}</span>
+            <span class="meta-pill ${dc}">⏱ ${dt}</span>
+            ${(r.tipo_innovacion||[]).slice(0,2).map(t=>`<span class="meta-pill">${t}</span>`).join('')}
+          </div>
         </div>
-      </div>
-      <div class="reto-row-actions">
-        <button class="btn-sm pri" onclick="event.stopPropagation();setTabAndFilter('postulaciones','${r.id}')">Ver postulaciones</button>
-        <button class="btn-sm del" onclick="event.stopPropagation();abrirModalCerrar('${r.id}')">Marcar completado</button>
+        <div class="reto-row-actions">
+          <button class="btn-sm pri" onclick="event.stopPropagation();setTabAndFilter('postulaciones','${r.id}')">Ver postulaciones</button>
+          <button class="btn-sm del" onclick="event.stopPropagation();abrirModalCerrar('${r.id}')">Marcar completado</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -472,7 +516,8 @@ function renderPostulaciones(){
 async function submitReto(e){
   e.preventDefault();const f=e.target;
   if(!f.empresa.value||!f.sector.value||!f.correo.value||!f.reto.value||!f.descripcion.value||!f.fecha_limite.value){showToast('Completa todos los campos obligatorios','#FF4343');return;}
-  const nr={id:'reto-'+Date.now(),empresa:f.empresa.value,sector:f.sector.value,correo:f.correo.value,reto:f.reto.value,descripcion:f.descripcion.value,areas:f.areas.value,requisitos:f.requisitos.value,barreras:f.barreras.value,tipo_innovacion:[...f.querySelectorAll('[name="tipo_innovacion"]:checked')].map(x=>x.value),tipo_solver:[...f.querySelectorAll('[name="tipo_solver"]:checked')].map(x=>x.value),convenio:[...f.querySelectorAll('[name="convenio"]:checked')].map(x=>x.value),presupuesto:f.presupuesto.value,tiempo:f.tiempo.value,fecha_limite:f.fecha_limite.value,contacto_info:f.contacto_info.value,fecha_publicacion:new Date().toISOString()};
+  const correoFinal = emailUsuario || f.correo.value;
+  const nr={id:'reto-'+Date.now(),empresa:f.empresa.value,sector:f.sector.value,correo:correoFinal,reto:f.reto.value,descripcion:f.descripcion.value,areas:f.areas.value,requisitos:f.requisitos.value,barreras:f.barreras.value,tipo_innovacion:[...f.querySelectorAll('[name="tipo_innovacion"]:checked')].map(x=>x.value),tipo_solver:[...f.querySelectorAll('[name="tipo_solver"]:checked')].map(x=>x.value),convenio:[...f.querySelectorAll('[name="convenio"]:checked')].map(x=>x.value),presupuesto:f.presupuesto.value,tiempo:f.tiempo.value,fecha_limite:f.fecha_limite.value,contacto_info:f.contacto_info.value,fecha_publicacion:new Date().toISOString()};
   const btn=document.getElementById('btn-publicar');btn.disabled=true;btn.textContent='Publicando...';
   try{
     const res=await fetch(`${APPS_SCRIPT_URL}?action=addReto&payload=${encodeURIComponent(JSON.stringify(nr))}`,{redirect:'follow'});
@@ -483,7 +528,14 @@ async function submitReto(e){
   }catch(err){btn.disabled=false;btn.textContent='PUBLICAR RETO DE INNOVACIÓN';showToast('Error al publicar. Inténtalo de nuevo.','#FF4343');}
 }
 
-function abrirModalCerrar(id){retoParaCerrar=id;document.getElementById('input-correo-cierre').value='';document.getElementById('modal-cerrar').style.display='flex';}
+function abrirModalCerrar(id){
+  retoParaCerrar=id;
+  const input = document.getElementById('input-correo-cierre');
+  input.value = emailUsuario || ''; // pre-rellenar si viene de Wix
+  if(emailUsuario){ input.readOnly=true; input.style.background='#f0f4fa'; }
+  else { input.readOnly=false; input.style.background=''; }
+  document.getElementById('modal-cerrar').style.display='flex';
+}
 function cerrarModal(e){document.getElementById('modal-cerrar').style.display='none';}
 
 async function confirmarCierreReto(){
